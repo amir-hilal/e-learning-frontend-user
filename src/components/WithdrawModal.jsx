@@ -22,15 +22,18 @@ const customStyles = {
 
 const WithdrawModal = ({ isOpen, onRequestClose, classId, onWithdrawSuccess }) => {
     const [reason, setReason] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         try {
             await api.post('/withdrawals/apply', { classId, reason });
             onWithdrawSuccess();
             onRequestClose();
         } catch (error) {
             console.error('Failed to submit withdrawal form:', error);
+            setIsSubmitting(false);
         }
     };
 
@@ -54,7 +57,11 @@ const WithdrawModal = ({ isOpen, onRequestClose, classId, onWithdrawSuccess }) =
                         required
                     />
                 </div>
-                <button type="submit" className="p-3 border-none surface-700 text-white border-round cursor-pointer">
+                <button
+                    type="submit"
+                    className="p-3 border-none surface-700 text-white border-round cursor-pointer"
+                    disabled={isSubmitting}
+                >
                     Submit
                 </button>
             </form>

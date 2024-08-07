@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { login } from '../store/authSlice';
+import { login as loginAction } from '../store/authSlice';
+import authService from '../services/authService';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -13,8 +13,8 @@ const LoginPage = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.post('/auth/login', { email, password });
-            dispatch(login({ token: response.data.token, user: response.data.user }));
+            const data = await authService.login({ email, password });
+            dispatch(loginAction({ token: data.token, user: data.user }));
             navigate('/dashboard');
         } catch (error) {
             console.error('Login failed:', error);
@@ -51,8 +51,10 @@ const LoginPage = () => {
                         className="w-full p-3 border-none surface-700 text-white border-round cursor-pointer"
                     >
                         Login
-            </button>
-            <div> <p>Don't have an account? <span className='cursor-pointer' onClick={()=>navigate('/register')} ><u>Sign Up</u></span></p></div>
+                    </button>
+                    <div>
+                        <p>Don't have an account? <span className='cursor-pointer' onClick={() => navigate('/register')}><u>Sign Up</u></span></p>
+                    </div>
                 </form>
             </div>
         </div>

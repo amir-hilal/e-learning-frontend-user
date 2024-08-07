@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import api from '../services/api';
+import authService from '../services/authService';
 
 const initialState = {
   token: localStorage.getItem('token') || null,
   isLoggedIn: !!localStorage.getItem('token'),
-  user: null,
+  user: JSON.parse(localStorage.getItem('user')) || null,
 };
 
 const authSlice = createSlice({
@@ -15,20 +15,21 @@ const authSlice = createSlice({
       state.token = action.payload.token;
       state.isLoggedIn = true;
       state.user = action.payload.user;
-      localStorage.setItem('username', action.payload.user.name);
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
       localStorage.setItem('token', action.payload.token);
     },
     logout(state) {
       state.token = null;
       state.isLoggedIn = false;
       state.user = null;
-      localStorage.removeItem('username');
+      localStorage.removeItem('user');
       localStorage.removeItem('token');
     },
     register(state, action) {
       state.token = action.payload.token;
       state.isLoggedIn = true;
       state.user = action.payload.user;
+      localStorage.setItem('user', JSON.stringify(action.payload.user));
       localStorage.setItem('token', action.payload.token);
     },
   },
@@ -38,10 +39,8 @@ export const { login, logout, register } = authSlice.actions;
 
 export const registerUser = (userData) => async (dispatch) => {
   try {
-    const response = await api.post('/auth/register', userData);
-    dispatch(
-      register({ token: response.data.token, user: response.data.user })
-    );
+    const data = await authService.register(userData);
+    dispatch(register({ token: data.token, user: data.user }));
   } catch (error) {
     console.error('Registration failed:', error);
   }
